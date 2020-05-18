@@ -54,9 +54,9 @@ values."
      (shell :variables
             shell-default-shell 'ansi-term
             shell-default-height 30
-            shell-default-position 'bottom)
+            shell-default-position 'bottom
+            hell-enable-smart-eshell t)
      ;;; Programming
-     ;; elm TODO wathc
      html
      javascript
      (typescript :variables
@@ -76,6 +76,7 @@ values."
      prodigy
      dap
      restclient
+     restclient
      ;;; Assist
      (syntax-checking
       :variables syntax-checking-enable-by-default nil)
@@ -83,7 +84,6 @@ values."
      github
      ibuffer ;; better buffer list
      imenu-list ;; code outline
-     restclient
      ;; Utils
      (elfeed :variables
              rmh-elfeed-org-files (list "~/Documents/org-mode/elfeedMain.org"))
@@ -108,17 +108,13 @@ values."
                                       color-theme-sanityinc-tomorrow
                                       ;; languages
                                       fennel-mode
-                                       ;;Fix
-                                       helm-org
-                                       ;; Random
-                                       evil-multiedit
-                                       emms
-                                       steam ;; use steam from emacs
-                                       2048-game 
-                                       ebuku ;; web boomark
-                                       rg ;; interactive rip grep
-                                       strace-mode ;; view results of strace/ltrace
-                                       )
+                                      ;;Fix
+                                      helm-org
+                                      ;; the rest
+                                      2048-game 
+                                      ebuku ;; web boomark
+                                      strace-mode ;; view results of strace/ltrace
+                                      )
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
    ;; A list of packages that will not be installed and loaded.
