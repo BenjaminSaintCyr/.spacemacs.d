@@ -23,7 +23,7 @@ values."
    dotspacemacs-enable-lazy-installation 'unused
    ;; If non-nil then Spacemacs will ask for confirmation before installing
    ;; a layer lazily. (default t)
-   dotspacemacs-ask-fork-lazy-installation t
+   dotspacemacs-ask-for-lazy-installation t
    ;; If non-nil layers with lazy install support are lazy installed.
    ;; List of additional paths where to look for configuration layers.
    ;; Paths must have a trailing slash (i.e. `~/.mycontribs/')
@@ -31,90 +31,43 @@ values."
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
    '(
-     yaml
-     ;; ----------------------------------------------------------------
+    ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
      ;; Uncomment some layer names and press <SPC f e R> (Vim style) or
      ;; <M-m f e R> (Emacs style) to install them.
      ;; ----------------------------------------------------------------
-     (ivy :variables
-          ivy-enable-advanced-buffer-information t)
-     (auto-completion :variables
-                      auto-completion-enable-snippets-in-popup t)
-     emacs-lisp
-     org
-     ;;; Editing
-     latex
-     pandoc ;; Convert md org pdf docx
-     bibtex
-     markdown
-     plantuml
-     pdf
-     ;; Shell
-     (shell :variables
-            shell-default-shell 'ansi-term
-            shell-default-height 30
-            shell-default-position 'bottom
-            hell-enable-smart-eshell t)
-     ;;; Programming
-     html
+     ;; Languages
+     csharp
+     (typescript
+          :variables
+          typescript-linter 'tslint
+          typescript-backend 'lsp)
      javascript
-     (typescript :variables
-                 typescript-linter 'tslint)
-     python
-     c-c++
      sql
-     (rust :variables
-           rust-format-on-save t)
-     (java :variables java-backend 'lsp)
-     common-lisp
-     ;; clojure
-     prolog
-     ;; Programming general
-     prettier
-     treemacs
-     prodigy
-     dap
-     restclient
-     restclient
-     ;;; Assist
+     markdown
+     lsp
+     ;;
+     ivy
+     auto-completion
+     emacs-lisp
+     git
+     org
+     ;; spell-checking
      (syntax-checking
       :variables syntax-checking-enable-by-default nil)
-     git
-     github
-     ibuffer ;; better buffer list
-     imenu-list ;; code outline
-     ;; Utils
-     (elfeed :variables
-             rmh-elfeed-org-files (list "~/Documents/org-mode/elfeedMain.org"))
-     gnus
-     ;; theming
+     version-control
+     ibuffer
+     imenu-list
      themes-megapack
-     ;; Misc
-     transmission
-     xkcd
-     emoji
-     erc
-    )
+     )
    ;; List of additional packages that will be installed without being
    ;; wrapped in a layer. If you need some configuration for these
    ;; packages, then consider creating a layer. You can also put the
    ;; configuration in `dotspacemacs/user-config'.
-   dotspacemacs-additional-packages '(
-                                      ;; ORG
-                                      org-super-agenda
-                                      org-mind-map
-                                      ;; Themes
-                                      color-theme-sanityinc-tomorrow
-                                      ;; languages
-                                      fennel-mode
-                                      ;;Fix
+   dotspacemacs-additional-packages '(log4j-mode
                                       helm-org
-                                      ;; the rest
-                                      2048-game 
-                                      ebuku ;; web boomark
-                                      strace-mode ;; view results of strace/ltrace
-                                      )
+                                      lsp-mssql
+                                      treemacs)
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
    ;; A list of packages that will not be installed and loaded.
@@ -186,9 +139,8 @@ values."
    ;; List of themes, the first of the list is loaded when spacemacs starts.
    ;; Press <SPC> T n to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
-   dotspacemacs-themes '(solarized-light
-                         solarized-dark
-                         sanityinc-tomorrow-eighties
+   dotspacemacs-themes '(doom-solarized-light
+                         doom-solarized-dark
                          spacemacs-dark
                          spacemacs-light)
    ;; If non nil the cursor color matches the state color in GUI Emacs.
@@ -308,7 +260,7 @@ values."
    ;; If non nil smooth scrolling (native-scrolling) is enabled. Smooth
    ;; scrolling overrides the default behavior of Emacs which recenters point
    ;; when it reaches the top or bottom of the screen. (default t)
-   dotspacemacs-smooth-scrolling 't
+   dotspacemacs-smooth-scrolling t
    ;; Control line numbers activation.
    ;; If set to `t' or `relative' line numbers are turned on in all `prog-mode' and
    ;; `text-mode' derivatives. If set to `relative', line numbers are relative.
@@ -324,13 +276,12 @@ values."
    ;; (default nil)
    dotspacemacs-line-numbers '(:relative t
                                :disabled-for-modes dired-mode
-                               doc-view-mode
-                               markdown-mode
-                               org-mode
-                               pdf-view-mode
-                               text-mode)
-
-
+                                                   doc-view-mode
+                                                   markdown-mode
+                                                   org-mode
+                                                   pdf-view-mode
+                                                   text-mode
+                               :size-limit-kb 1000)
    ;; Code folding method. Possible values are `evil' and `origami'.
    ;; (default 'evil)
    dotspacemacs-folding-method 'evil
@@ -347,7 +298,7 @@ values."
    dotspacemacs-highlight-delimiters 'all
    ;; If non nil, advise quit functions to keep server open when quitting.
    ;; (default nil)
-   dotspacemacs-persistent-server t
+   dotspacemacs-persistent-server nil
    ;; List of search tool executable names. Spacemacs uses the first installed
    ;; tool of the list. Supported tools are `ag', `pt', `ack' and `grep'.
    ;; (default '("ag" "pt" "ack" "grep"))
@@ -380,33 +331,34 @@ layers configuration.
 This is the place where most of your configurations should be done. Unless it is
 explicitly specified that a variable should be set before a package is loaded,
 you should place your code here."
-  (setq debug-on-error t)
-  ;; open main Org-mode fil
-  (server-start)
-  (org-babel-load-file "~/.spacemacs.d/config.org"))
+  (global-set-key (kbd "C-c o")
+                  (lambda () (interactive) (find-file "~/../../notes/notes.org")))
+  (setq org-todo-keywords
+        '((sequence "TODO" "DOING" "REVIEW" "|" "DONE" "CANCELED")
+          (sequence "BUG" "DEBUG" "|" "SOLVED")))
+  (with-eval-after-load 'org
+    (org-defkey org-mode-map [(meta return)] 'org-meta-return))
+  ;; (setq lsp-mssql-connections
+  ;;       [(:server "localhost"
+  ;;                 :database ""
+  ;;                 :user "SA"
+  ;;                 :password "demoPWD2")])
+  )
 
-(defun dotspacemacs/emacs-custom-settings ()
-  "Emacs custom settings.
-This is an auto-generated function, do not modify its content directly, use
-Emacs customize menu instead.
-This function is called at the very end of Spacemacs initialization."
+;; Do not write anything past this comment. This is where Emacs will
+;; auto-generate custom variable definitions.
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(custom-safe-themes
-   (quote
-    ("628278136f88aa1a151bb2d6c8a86bf2b7631fbea5f0f76cba2a0079cd910f7d" default)))
- '(evil-want-Y-yank-to-eol nil)
- '(org-agenda-files (quote ("~/Documents/org-mode/main.org")))
+ '(org-agenda-files (quote ("c:/Users/bsaintcyr/notes/notes.org")))
  '(package-selected-packages
    (quote
-    (yasnippet-snippets yapfify yaml-mode xterm-color xkcd x509-mode ws-butler writeroom-mode winum which-key web-mode web-beautify vterm volatile-highlights vi-tilde-fringe uuidgen use-package treemacs-projectile treemacs-persp treemacs-magit treemacs-evil toml-mode toc-org tide terminal-here tagedit symon symbol-overlay string-inflection strace-mode steam sql-indent spaceline-all-the-icons smex smeargle slim-mode shell-pop scss-mode sass-mode rg restart-emacs rainbow-delimiters racer pytest pyenv-mode py-isort pug-mode prodigy prettier-js popwin plantuml-mode pippel pipenv pip-requirements pcre2el password-generator paradox pandoc-mode ox-pandoc overseer orgit org-super-agenda org-ref org-projectile org-present org-pomodoro org-mind-map org-mime org-journal org-download org-cliplink org-bullets org-brain open-junk-file nodejs-repl nameless multi-term move-text mmm-mode markdown-toc magit-svn magit-section magit-gitflow macrostep lsp-ui lsp-python-ms lorem-ipsum livid-mode live-py-mode link-hint json-navigator json-mode js2-refactor js-doc ivy-yasnippet ivy-xref ivy-rtags ivy-purpose ivy-hydra inf-mongo indent-guide importmagic impatient-mode ibuffer-projectile hybrid-mode hungry-delete hl-todo highlight-parentheses highlight-numbers highlight-indentation helm-make google-translate google-c-style golden-ratio gnuplot gitignore-templates gitignore-mode github-search github-clone gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe+ gist gh-md fuzzy forge font-lock+ flycheck-ycmd flycheck-rust flycheck-rtags flycheck-pos-tip flycheck-package flycheck-elsa flx-ido fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-line evil-surround evil-org evil-numbers evil-nerd-commenter evil-matchit evil-magit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-escape evil-ediff evil-cleverparens evil-args evil-anzu eval-sexp-fu eshell-z eshell-prompt-extras esh-help emojify emoji-cheat-sheet-plus emmet-mode elisp-slime-nav editorconfig ediprolog ebuku dumb-jump dotenv-mode disaster diminish devdocs define-word dap-mode cython-mode cpp-auto-include counsel-projectile counsel-css company-ycmd company-web company-tern company-rtags company-reftex company-emoji company-c-headers company-auctex company-anaconda column-enforce-mode color-theme-sanityinc-tomorrow clean-aindent-mode clang-format centered-cursor-mode ccls cargo browse-at-remote blacken auto-yasnippet auto-highlight-symbol auto-compile aggressive-indent ace-link ac-ispell))))
+    (web-beautify livid-mode skewer-mode simple-httpd json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc coffee-mode treemacs ht pfuture helm-org helm helm-core rg imenu-list ibuffer-projectile sql-indent mmm-mode markdown-toc markdown-mode gh-md log4j-mode smeargle orgit org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-mime org-download magit-gitflow magit-popup htmlize gnuplot gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link fuzzy evil-magit magit git-commit with-editor transient company-statistics company auto-yasnippet yasnippet ac-ispell auto-complete ws-butler winum which-key wgrep volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline smex restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint ivy-hydra indent-guide hydra lv hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation helm-make google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist highlight evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu elisp-slime-nav dumb-jump popup f dash s diminish define-word counsel-projectile projectile pkg-info epl counsel swiper ivy column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed async aggressive-indent adaptive-wrap ace-window ace-link avy))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
-)
