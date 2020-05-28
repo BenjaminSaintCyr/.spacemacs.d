@@ -108,7 +108,7 @@
 *** Open main Org-mode file
     #+begin_src emacs-lisp
     (global-set-key (kbd "C-c o")
-                    (lambda () (interactive) (find-file "~/Documents/org-mode/main.org")))
+                    (lambda () (interactive) (find-file "~/../../notes/notes.org")))
     #+end_src
 *** Open configs
     #+begin_src emacs-lisp
