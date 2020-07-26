@@ -1,104 +1,4 @@
 * Editing
-** Apps
-*** Org
-**** org-agenda
-    #+begin_src emacs-lisp
-    (setq org-angenda-files '("~/Documents/org-mode/main.org"))
-    #+end_src
-**** org todo keywords
-    #+begin_src emacs-lisp
-    (setq org-todo-keywords
-          '((sequence "TODO" "DOING" "REVIEW" "|" "DONE" "CANCELED")
-            (sequence "BUG" "DEBUG" "|" "SOLVED")))
-    #+end_src
-**** Note taking [0/0]
-***** Prettifier
-      CLOSED: [2020-02-21 Fri 21:53]
-      #+begin_src emacs-lisp
-        (defvar pretty-alist
-          (cl-pairlis '("alpha" "beta" "gamma" "delta" "epsilon" "zeta" "eta"
-                        "theta" "iota" "kappa" "lambda" "mu" "nu" "xi"
-                        "omicron" "pi" "rho" "sigma_final" "sigma" "tau"
-                        "upsilon" "phi" "chi" "psi" "omega")
-                      (mapcar
-                       (lambda (x) (make-char 'greek-iso8859-7 x))
-                       (number-sequence 97 121))))
-        ;; add other prettifier below <-- 
-        (add-to-list 'pretty-alist '("rangle" . ?\⟩))
-        (add-to-list 'pretty-alist '( "->" . ?\→))
-        (add-to-list 'pretty-alist '("infinity" . ?\∞))
-
-        (defun pretty-things ()
-          (mapc
-           (lambda (x)
-             (let ((word (car x))
-                   (char (cdr x)))
-               (font-lock-add-keywords
-                nil
-                `((,(concat "\\(^\\|[^a-zA-Z0-9]\\)\\(" word "\\)[a-zA-Z]")
-                    (0 (progn
-                         (decompose-region (match-beginning 2) (match-end 2))
-                         nil)))))
-               (font-lock-add-keywords
-                nil
-                `((,(concat "\\(^\\|[^a-zA-Z0-9]\\)\\(" word "\\)[^a-zA-Z]")
-                    (0 (progn
-                         (compose-region (1- (match-beginning 2)) (match-end 2)
-                          ,char)
-                         nil)))))))
-           pretty-alist))
-          (add-hook 'prog-mode-hook 'pretty-things)
-          (add-hook 'org-mode-hook 'pretty-things)
-      #+end_src
-     - Example:  alpha, beta, lambda, omega, theta, pi, mu, psi. phi, alpha psi
-       - ->
-    
-***** UML
-       #+begin_src emacs-lisp
-    ;; tell org-mode where to find the plantuml JAR file (specify the JAR file)
-   (setq org-plantuml-jar-path (expand-file-name "~/plantuml.jar"))
-
-   ;; use plantuml as org-babel language
-   (org-babel-do-load-languages 'org-babel-load-languages '((plantuml . t)))
-
-   ;; helper function
-   (defun my-org-confirm-babel-evaluate (lang body)
-   "Do not ask for confirmation to evaluate code for specified languages."
-   (member lang '("plantuml")))
-
-   ;; trust certain code as being safe
-   (setq org-confirm-babel-evaluate 'my-org-confirm-babel-evaluate)
-
-   ;; automatically show the resulting image
-   (add-hook 'org-babel-after-execute-hook 'org-display-inline-images)
-       #+end_src
-*** Eshell
-*** Dired
-**** Quick ediff
-    #+begin_src emacs-lisp
-      ;; -*- lexical-binding: t -*-
-      (defun ora-ediff-files ()
-        (interactive)
-        (let ((files (dired-get-marked-files))
-              (wnd (current-window-configuration)))
-          (if (<= (length files) 2)
-              (let ((file1 (car files))
-                    (file2 (if (cdr files)
-                               (cadr files)
-                             (read-file-name
-                              "file: "
-                              (dired-dwim-target-directory)))))
-                (if (file-newer-than-file-p file1 file2)
-                    (ediff-files file2 file1)
-                  (ediff-files file1 file2))
-                (add-hook 'ediff-after-quit-hook-internal
-                          (lambda ()
-                            (setq ediff-after-quit-hook-internal nil)
-                            (set-window-configuration wnd))))
-            (error "no more than 2 files should be marked"))))
-
-           (define-key dired-mode-map "e" 'ora-ediff-files)
-    #+end_src
 ** Shortcuts
 *** Magit shortcut
     #+begin_src emacs-lisp
@@ -107,14 +7,132 @@
     #+end_src
 *** Open main Org-mode file
     #+begin_src emacs-lisp
-    (global-set-key (kbd "C-c o")
-                    (lambda () (interactive) (find-file "~/Documents/org-mode/main.org")))
+      (global-set-key (kbd "C-c o")
+                      (lambda () (interactive) (find-file "~/Documents/org-mode/main.org")))
     #+end_src
 *** Open configs
     #+begin_src emacs-lisp
-    (global-set-key (kbd "C-x C-.")
-                    (lambda () (interactive) (find-file "~/.spacemacs.d/config.org")))
+      (global-set-key (kbd "C-x C-.")
+                      (lambda () (interactive) (find-file "~/.spacemacs.d/config.org")))
     #+end_src
+** abbrev 
+   #+begin_src emacs-lisp
+   (setq abbrev-file-name
+         "~/.emacs.d/private/abbrev_defs")
+   (setq-default abbrev-mode t)
+   (setq save-abbrevs 'silent)
+   #+end_src
+** Company
+   #+begin_src emacs-lisp
+     (setq company-show-numbers t)
+   #+end_src
+*** [[https://github.com/TommyX12/company-tabnine][Tabnine]]
+    - Use machine learning for suggestion
+      #+BEGIN_SRC emacs-lisp
+        (add-to-list 'company-backends #'company-tabnine)
+        (setq company-idle-delay 0)
+      #+END_SRC
+* Apps
+** Org
+*** org-agenda
+   #+begin_src emacs-lisp
+   (setq org-angenda-files '("~/Documents/org-mode/main.org"))
+   #+end_src
+*** org todo keywords
+   #+begin_src emacs-lisp
+     (setq org-todo-keywords
+           '((sequence "TODO" "DOING" "REVIEW" "|" "DONE" "CANCELED")
+             (sequence "BUG" "DEBUG" "|" "SOLVED")))
+   #+end_src
+*** Note taking
+**** Prettifier
+     CLOSED: [2020-02-21 Fri 21:53]
+     #+begin_src emacs-lisp
+       (defvar pretty-alist
+         (cl-pairlis '("alpha" "beta" "gamma" "delta" "epsilon" "zeta" "eta"
+                       "theta" "iota" "kappa" "lambda" "mu" "nu" "xi"
+                       "omicron" "pi" "rho" "sigma_final" "sigma" "tau"
+                       "upsilon" "phi" "chi" "psi" "omega")
+                     (mapcar
+                      (lambda (x) (make-char 'greek-iso8859-7 x))
+                      (number-sequence 97 121))))
+       ;; add other prettifier below <-- 
+       (add-to-list 'pretty-alist '("rangle" . ?\⟩))
+       (add-to-list 'pretty-alist '( "->" . ?\→))
+       (add-to-list 'pretty-alist '("infinity" . ?\∞))
+
+       (defun pretty-things ()
+         (mapc
+          (lambda (x)
+            (let ((word (car x))
+                  (char (cdr x)))
+              (font-lock-add-keywords
+               nil
+               `((,(concat "\\(^\\|[^a-zA-Z0-9]\\)\\(" word "\\)[a-zA-Z]")
+                   (0 (progn
+                        (decompose-region (match-beginning 2) (match-end 2))
+                        nil)))))
+              (font-lock-add-keywords
+               nil
+               `((,(concat "\\(^\\|[^a-zA-Z0-9]\\)\\(" word "\\)[^a-zA-Z]")
+                   (0 (progn
+                        (compose-region (1- (match-beginning 2)) (match-end 2)
+                         ,char)
+                        nil)))))))
+          pretty-alist))
+         (add-hook 'prog-mode-hook 'pretty-things)
+         (add-hook 'org-mode-hook 'pretty-things)
+     #+end_src
+    - Example:  alpha, beta, lambda, omega, theta, pi, mu, psi. phi, alpha psi
+      - ->
+    
+**** UML
+      #+begin_src emacs-lisp
+   ;; tell org-mode where to find the plantuml JAR file (specify the JAR file)
+  (setq org-plantuml-jar-path (expand-file-name "~/plantuml.jar"))
+
+  ;; use plantuml as org-babel language
+  (org-babel-do-load-languages 'org-babel-load-languages '((plantuml . t)))
+
+  ;; helper function
+  (defun my-org-confirm-babel-evaluate (lang body)
+  "Do not ask for confirmation to evaluate code for specified languages."
+  (member lang '("plantuml")))
+
+  ;; trust certain code as being safe
+  (setq org-confirm-babel-evaluate 'my-org-confirm-babel-evaluate)
+
+  ;; automatically show the resulting image
+  (add-hook 'org-babel-after-execute-hook 'org-display-inline-images)
+      #+end_src
+
+** Eshell
+** Dired
+*** Quick ediff
+   #+begin_src emacs-lisp
+     ;; -*- lexical-binding: t -*-
+     (defun ora-ediff-files ()
+       (interactive)
+       (let ((files (dired-get-marked-files))
+             (wnd (current-window-configuration)))
+         (if (<= (length files) 2)
+             (let ((file1 (car files))
+                   (file2 (if (cdr files)
+                              (cadr files)
+                            (read-file-name
+                             "file: "
+                             (dired-dwim-target-directory)))))
+               (if (file-newer-than-file-p file1 file2)
+                   (ediff-files file2 file1)
+                 (ediff-files file1 file2))
+               (add-hook 'ediff-after-quit-hook-internal
+                         (lambda ()
+                           (setq ediff-after-quit-hook-internal nil)
+                           (set-window-configuration wnd))))
+           (error "no more than 2 files should be marked"))))
+
+          (define-key dired-mode-map "e" 'ora-ediff-files)
+   #+end_src
 * Esthetic
 ** Smooth scrolling
 #+begin_src emacs-lisp 
@@ -132,23 +150,34 @@
   (setq hscroll-step 1)
   (setq hscroll-margin 1)
    #+end_src
-* Progress [1/4]
-** TODO Prodigy
-** DOING Counsel
-   #+begin_src emacs-lisp
-     (setq company-show-numbers t)
-   #+end_src
-** TODO Expand 
-   #+begin_src emacs-lisp
-   (setq abbrev-file-name
-         "~/.emacs.d/private/abbrev_defs")
-   (setq-default abbrev-mode t)
-   (setq save-abbrevs 'silent)
-   #+end_src
+** Tabs
+   #+BEGIN_SRC emacs-lisp
+     (centaur-tabs-mode t)
+     (centaur-tabs-headline-match)
+     (add-hook 'prog-mode-hook 'centaur-tabs-mode)
+     (setq centaur-tabs-style "wave"
+           centaur-tabs-height 32
+           centaur-tabs-set-icons t
+           centaur-tabs-gray-out-icons 'buffer
+           centaur-tabs-set-bar 'under
+           centaur-tabs-set-modified-marker t)
+     (define-key evil-normal-state-map (kbd "g t") 'centaur-tabs-forward)
+     (define-key evil-normal-state-map (kbd "g T") 'centaur-tabs-backward)
+          ;;; hooks
+     (add-hook 'dired-mode-hook 'centaur-tabs-local-mode)
+     (centaur-tabs-group-by-projectile-project)
+   #+END_SRC
+
+** lines
+   #+BEGIN_SRC emacs-lisp
+     (add-hook 'visual-line-mode-hook 'adaptive-fill-mode)
+   #+END_SRC
+
 * FIX
 ** org-mode
    #+begin_src emacs-lisp
      (with-eval-after-load 'org
        (org-defkey org-mode-map [(meta return)] 'org-meta-return))
    #+end_src
-   (org-adapt-indentation nil)
+   
+   
