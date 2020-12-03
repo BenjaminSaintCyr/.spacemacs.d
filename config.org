@@ -1,140 +1,97 @@
-* Editing
-** Apps
-*** Org
-**** org-agenda
-    #+begin_src emacs-lisp
-    (setq org-angenda-files '("~/Documents/org-mode/main.org"))
-    #+end_src
-**** org todo keywords
-    #+begin_src emacs-lisp
-    (setq org-todo-keywords
-          '((sequence "TODO" "DOING" "REVIEW" "|" "DONE" "CANCELED")
-            (sequence "BUG" "DEBUG" "|" "SOLVED")))
-    #+end_src
-**** Note taking [0/0]
-***** Prettifier
-      CLOSED: [2020-02-21 Fri 21:53]
+* Apps
+** Org
+*** org-agenda
+   #+begin_src emacs-lisp
+   (setq org-angenda-files '("~/Documents/org-mode/main.org"))
+   #+end_src
+**** Remove unecessary information
+     - [[https://orgmode.org/manual/Deadlines-and-Scheduling.html#index-org_002dagenda_002dskip_002dscheduled_002dif_002ddone-817][ref]]
+    #+BEGIN_SRC emacs-lisp
+      (setq org-agenda-skip-scheduled-if-done t)
+#+END_SRC
+ 
+*** org todo keywords
+   #+begin_src emacs-lisp
+   (setq org-todo-keywords
+         '((sequence "TODO" "DOING" "REVIEW" "|" "DONE" "CANCELED")
+           (sequence "BUG" "DEBUG" "|" "SOLVED")))
+   #+end_src
+ 
+*** Note taking
+**** UML
       #+begin_src emacs-lisp
-        (defvar pretty-alist
-          (cl-pairlis '("alpha" "beta" "gamma" "delta" "epsilon" "zeta" "eta"
-                        "theta" "iota" "kappa" "lambda" "mu" "nu" "xi"
-                        "omicron" "pi" "rho" "sigma_final" "sigma" "tau"
-                        "upsilon" "phi" "chi" "psi" "omega")
-                      (mapcar
-                       (lambda (x) (make-char 'greek-iso8859-7 x))
-                       (number-sequence 97 121))))
-        ;; add other prettifier below <-- 
-        (add-to-list 'pretty-alist '("rangle" . ?\⟩))
-        (add-to-list 'pretty-alist '( "->" . ?\→))
-        (add-to-list 'pretty-alist '("infinity" . ?\∞))
+   ;; tell org-mode where to find the plantuml JAR file (specify the JAR file)
+  (setq org-plantuml-jar-path (expand-file-name "~/plantuml.jar"))
 
-        (defun pretty-things ()
-          (mapc
-           (lambda (x)
-             (let ((word (car x))
-                   (char (cdr x)))
-               (font-lock-add-keywords
-                nil
-                `((,(concat "\\(^\\|[^a-zA-Z0-9]\\)\\(" word "\\)[a-zA-Z]")
-                    (0 (progn
-                         (decompose-region (match-beginning 2) (match-end 2))
-                         nil)))))
-               (font-lock-add-keywords
-                nil
-                `((,(concat "\\(^\\|[^a-zA-Z0-9]\\)\\(" word "\\)[^a-zA-Z]")
-                    (0 (progn
-                         (compose-region (1- (match-beginning 2)) (match-end 2)
-                          ,char)
-                         nil)))))))
-           pretty-alist))
-          (add-hook 'prog-mode-hook 'pretty-things)
-          (add-hook 'org-mode-hook 'pretty-things)
+  ;; use plantuml as org-babel language
+  (org-babel-do-load-languages 'org-babel-load-languages '((plantuml . t)))
+
+  ;; helper function
+  (defun my-org-confirm-babel-evaluate (lang body)
+  "Do not ask for confirmation to evaluate code for specified languages."
+  (member lang '("plantuml")))
+
+  ;; trust certain code as being safe
+  (setq org-confirm-babel-evaluate 'my-org-confirm-babel-evaluate)
+
+  ;; automatically show the resulting image
+  (add-hook 'org-babel-after-execute-hook 'org-display-inline-images)
       #+end_src
-     - Example:  alpha, beta, lambda, omega, theta, pi, mu, psi. phi, alpha psi
-       - ->
-    
-***** UML
-       #+begin_src emacs-lisp
-    ;; tell org-mode where to find the plantuml JAR file (specify the JAR file)
-   (setq org-plantuml-jar-path (expand-file-name "~/plantuml.jar"))
+** Eshell
+** Dired
+*** Quick ediff
+   #+begin_src emacs-lisp
+     ;; -*- lexical-binding: t -*-
+     (defun ora-ediff-files ()
+       (interactive)
+       (let ((files (dired-get-marked-files))
+             (wnd (current-window-configuration)))
+         (if (<= (length files) 2)
+             (let ((file1 (car files))
+                   (file2 (if (cdr files)
+                              (cadr files)
+                            (read-file-name
+                             "file: "
+                             (dired-dwim-target-directory)))))
+               (if (file-newer-than-file-p file1 file2)
+                   (ediff-files file2 file1)
+                 (ediff-files file1 file2))
+               (add-hook 'ediff-after-quit-hook-internal
+                         (lambda ()
+                           (setq ediff-after-quit-hook-internal nil)
+                           (set-window-configuration wnd))))
+           (error "no more than 2 files should be marked"))))
 
-   ;; use plantuml as org-babel language
-   (org-babel-do-load-languages 'org-babel-load-languages '((plantuml . t)))
+          (define-key dired-mode-map "e" 'ora-ediff-files)
+   #+end_src
+** Prodigy
+  #+begin_src emacs-lisp
+    (org-babel-load-file "./private/prodigy.el")
+#+end_src
+ 
+** GNUS
+#+begin_src emacs-lisp
+  (org-babel-load-file "./private/gnus.el")
+#+end_src
 
-   ;; helper function
-   (defun my-org-confirm-babel-evaluate (lang body)
-   "Do not ask for confirmation to evaluate code for specified languages."
-   (member lang '("plantuml")))
-
-   ;; trust certain code as being safe
-   (setq org-confirm-babel-evaluate 'my-org-confirm-babel-evaluate)
-
-   ;; automatically show the resulting image
-   (add-hook 'org-babel-after-execute-hook 'org-display-inline-images)
-       #+end_src
-*** Eshell
-*** Dired
-**** Quick ediff
-    #+begin_src emacs-lisp
-      ;; -*- lexical-binding: t -*-
-      (defun ora-ediff-files ()
-        (interactive)
-        (let ((files (dired-get-marked-files))
-              (wnd (current-window-configuration)))
-          (if (<= (length files) 2)
-              (let ((file1 (car files))
-                    (file2 (if (cdr files)
-                               (cadr files)
-                             (read-file-name
-                              "file: "
-                              (dired-dwim-target-directory)))))
-                (if (file-newer-than-file-p file1 file2)
-                    (ediff-files file2 file1)
-                  (ediff-files file1 file2))
-                (add-hook 'ediff-after-quit-hook-internal
-                          (lambda ()
-                            (setq ediff-after-quit-hook-internal nil)
-                            (set-window-configuration wnd))))
-            (error "no more than 2 files should be marked"))))
-
-           (define-key dired-mode-map "e" 'ora-ediff-files)
-    #+end_src
+** Fun
+*** GNUGO
+#+begin_src emacs-lisp
+    (setq gnugo-option-history (list "--komi 5.5 --boardsize 9"))
+    (setq gnugo-xpms 'gnugo-imgen-create-xpms)
+    (add-hook 'gnugo-start-game-hook 'gnugo-image-display-mode)
+#+end_src
+* Editing
 ** Shortcuts
-*** Magit shortcut
-    #+begin_src emacs-lisp
-    (global-set-key (kbd "C-x g")
-                    'magit-status)
-    #+end_src
 *** Open main Org-mode file
     #+begin_src emacs-lisp
-    (global-set-key (kbd "C-c o")
-                    (lambda () (interactive) (find-file "~/../../notes/notes.org")))
+      (spacemacs/set-leader-keys "ao." (lambda () "Open main org file" (interactive) (find-file "~/../../Documents/ecole/org-mode/main.org")))
     #+end_src
 *** Open configs
     #+begin_src emacs-lisp
-    (global-set-key (kbd "C-x C-.")
-                    (lambda () (interactive) (find-file "~/.spacemacs.d/config.org")))
+      (spacemacs/set-leader-keys "fe." (lambda () "open config file"(interactive) (find-file "~/.spacemacs.d/config.org")))
     #+end_src
-* Esthetic
-** Smooth scrolling
-#+begin_src emacs-lisp 
-  ;; Vertical Scroll
-  (setq scroll-step 1)
-  (setq scroll-margin 1)
-  (setq scroll-conservatively 101)
-  (setq scroll-up-aggressively 0.01)
-  (setq scroll-down-aggressively 0.01)
-  (setq auto-window-vscroll nil)
-  (setq fast-but-imprecise-scrolling nil)
-  (setq mouse-wheel-scroll-amount '(1 ((shift) . 1)))
-  (setq mouse-wheel-progressive-speed nil)
-  ;; Horizontal Scroll
-  (setq hscroll-step 1)
-  (setq hscroll-margin 1)
-   #+end_src
-* Progress [1/4]
-** TODO Prodigy
-** DOING Counsel
+** Company
    #+begin_src emacs-lisp
      (setq company-show-numbers t)
    #+end_src
@@ -144,6 +101,47 @@
          "~/.emacs.d/private/abbrev_defs")
    (setq-default abbrev-mode t)
    (setq save-abbrevs 'silent)
+   #+end_src
+* Esthetic
+** Smooth scrolling
+#+begin_src emacs-lisp 
+  ;; Vertical Scroll
+  (setq scroll-step 1
+        scroll-margin 1
+        scroll-conservatively 101
+        scroll-up-aggressively 0.01
+        scroll-down-aggressively 0.01
+        auto-window-vscroll nil
+        fast-but-imprecise-scrolling nil
+        mouse-wheel-scroll-amount '(1 ((shift . 1)))
+        mouse-wheel-progressive-speed nil)
+        ;; Horizontal Scroll
+  (setq hscroll-step 1
+        hscroll-margin 1)
+   #+end_src
+** Prettifier
+   #+begin_src emacs-lisp
+     (setq symbol-function
+           '(
+             ("lambda" . 955) ; λ
+             ("->" . 8594)    ; →
+             ("=>" . 8658)    ; ⇒
+             ))
+
+     (setq symbol-org
+           '(
+             ("[ ]" . 9744) ; ☐
+             ("[X]" . 9746) ; ☒
+             ))
+
+
+     (defun add-pretty (symbols)
+       "Add prettier functions"
+       (setq prettify-symbols-alist (append prettify-symbols-alist symbols)))
+
+     (add-hook 'prog-mode-hook '(lambda () (add-pretty symbol-function)))
+     (add-hook 'org-mode-hook '(lambda () (add-pretty symbol-org)))
+     (global-prettify-symbols-mode 1)
    #+end_src
 * FIX
 ** org-mode
