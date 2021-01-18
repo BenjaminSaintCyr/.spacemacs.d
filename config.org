@@ -66,12 +66,12 @@
    #+end_src
 ** Prodigy
   #+begin_src emacs-lisp
-    (org-babel-load-file "./private/prodigy.el")
+    (org-babel-load-file "~/.spacemacs.d/private/prodigy.el")
 #+end_src
  
 ** GNUS
 #+begin_src emacs-lisp
-  (org-babel-load-file "./private/gnus.el")
+  (org-babel-load-file "~/.spacemacs.d/private/gnus.el")
 #+end_src
 
 ** Fun
