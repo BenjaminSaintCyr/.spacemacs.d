@@ -48,7 +48,7 @@ This function should only modify configuration layer settings."
      pdf
      ;; Shell
      (shell :variables
-            shell-default-shell 'ansi-term
+            shell-default-shell 'vterm
             shell-default-height 30
             shell-default-position 'bottom
             hell-enable-smart-eshell t)

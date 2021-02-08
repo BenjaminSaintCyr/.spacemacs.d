@@ -48,40 +48,27 @@
 **** Prettifier
      CLOSED: [2020-02-21 Fri 21:53]
      #+begin_src emacs-lisp
-       (defvar pretty-alist
-         (cl-pairlis '("alpha" "beta" "gamma" "delta" "epsilon" "zeta" "eta"
-                       "theta" "iota" "kappa" "lambda" "mu" "nu" "xi"
-                       "omicron" "pi" "rho" "sigma_final" "sigma" "tau"
-                       "upsilon" "phi" "chi" "psi" "omega")
-                     (mapcar
-                      (lambda (x) (make-char 'greek-iso8859-7 x))
-                      (number-sequence 97 121))))
-       ;; add other prettifier below <-- 
-       (add-to-list 'pretty-alist '("rangle" . ?\⟩))
-       (add-to-list 'pretty-alist '( "->" . ?\→))
-       (add-to-list 'pretty-alist '("infinity" . ?\∞))
+       (setq symbol-function
+             '(
+               ("lambda" . 955) ; λ
+               ("->" . 8594)    ; →
+               ("=>" . 8658)    ; ⇒
+               ))
 
-       (defun pretty-things ()
-         (mapc
-          (lambda (x)
-            (let ((word (car x))
-                  (char (cdr x)))
-              (font-lock-add-keywords
-               nil
-               `((,(concat "\\(^\\|[^a-zA-Z0-9]\\)\\(" word "\\)[a-zA-Z]")
-                   (0 (progn
-                        (decompose-region (match-beginning 2) (match-end 2))
-                        nil)))))
-              (font-lock-add-keywords
-               nil
-               `((,(concat "\\(^\\|[^a-zA-Z0-9]\\)\\(" word "\\)[^a-zA-Z]")
-                   (0 (progn
-                        (compose-region (1- (match-beginning 2)) (match-end 2)
-                         ,char)
-                        nil)))))))
-          pretty-alist))
-         (add-hook 'prog-mode-hook 'pretty-things)
-         (add-hook 'org-mode-hook 'pretty-things)
+       (setq symbol-org
+             '(
+               ("[ ]" . 9744) ; ☐
+               ("[X]" . 9746) ; ☒
+               ))
+
+
+       (defun add-pretty (symbols)
+         "Add prettier functions"
+         (setq prettify-symbols-alist (append prettify-symbols-alist symbols)))
+
+       (add-hook 'prog-mode-hook '(lambda () (add-pretty symbol-function)))
+       (add-hook 'org-mode-hook '(lambda () (add-pretty symbol-org)))
+       (global-prettify-symbols-mode 1)
      #+end_src
     - Example:  alpha, beta, lambda, omega, theta, pi, mu, psi. phi, alpha psi
       - ->
