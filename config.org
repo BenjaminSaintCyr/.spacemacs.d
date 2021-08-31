@@ -1,26 +1,19 @@
 * Editing
 ** Shortcuts
-*** Magit shortcut
-    #+begin_src emacs-lisp
-    (global-set-key (kbd "C-x g")
-                    'magit-status)
-    #+end_src
 *** Open main Org-mode file
     #+begin_src emacs-lisp
-      (global-set-key (kbd "C-c o")
-                      (lambda () (interactive) (find-file "~/Documents/org-mode/main.org")))
+      (spacemacs/set-leader-keys "ao." (lambda () (interactive) (find-file "~/org-mode/main.org")))
     #+end_src
 *** Open configs
     #+begin_src emacs-lisp
-      (global-set-key (kbd "C-x C-.")
-                      (lambda () (interactive) (find-file "~/.spacemacs.d/config.org")))
+      (spacemacs/set-leader-keys "fe." (lambda () (interactive) (find-file "~/.spacemacs.d/config.org")))
     #+end_src
 ** abbrev 
    #+begin_src emacs-lisp
-   (setq abbrev-file-name
-         "~/.emacs.d/private/abbrev_defs")
-   (setq-default abbrev-mode t)
-   (setq save-abbrevs 'silent)
+     (setq abbrev-file-name
+           "~/.emacs.d/private/abbrev_defs")
+     (setq-default abbrev-mode t)
+     (setq save-abbrevs 'silent)
    #+end_src
 ** Company
    #+begin_src emacs-lisp
@@ -35,15 +28,15 @@
 * Apps
 ** Org
 *** org-agenda
-   #+begin_src emacs-lisp
-   (setq org-angenda-files '("~/Documents/org-mode/main.org"))
-   #+end_src
+    #+begin_src emacs-lisp
+      (setq org-angenda-files '("~/Documents/org-mode/main.org"))
+    #+end_src
 *** org todo keywords
-   #+begin_src emacs-lisp
-     (setq org-todo-keywords
-           '((sequence "TODO" "DOING" "REVIEW" "|" "DONE" "CANCELED")
-             (sequence "BUG" "DEBUG" "|" "SOLVED")))
-   #+end_src
+    #+begin_src emacs-lisp
+      (setq org-todo-keywords
+            '((sequence "TODO" "DOING" "REVIEW" "|" "DONE" "CANCELED")
+              (sequence "BUG" "DEBUG" "|" "SOLVED")))
+    #+end_src
 *** Note taking
 **** Prettifier
      CLOSED: [2020-02-21 Fri 21:53]
@@ -61,6 +54,24 @@
                ("[X]" . 9746) ; ☒
                ))
 
+       (setq symbol-fsharp
+             '(
+               ("fun" . ?λ)
+               ("->" . ?→)
+               ("<-" . ?←)
+               ("=>" . ?⇒)
+               ("<>" . ?≠)
+               ("<=" . ?≤)
+               (">=" . ?≥)
+               ("|>" . ?▷)
+               ("<|" . ?◁)
+               ("||>" . ?⧐)
+               ("<||" . ?⧏)
+               ("'a" . ?α)
+               ("'b" . ?β)
+               ("[|" . ?⟦)
+                ("|]" . ?⟧)
+               ))
 
        (defun add-pretty (symbols)
          "Add prettier functions"
@@ -68,76 +79,90 @@
 
        (add-hook 'prog-mode-hook '(lambda () (add-pretty symbol-function)))
        (add-hook 'org-mode-hook '(lambda () (add-pretty symbol-org)))
+       (add-hook 'fsharp-mode-hook '(lambda () (add-pretty symbol-fsharp)))
        (global-prettify-symbols-mode 1)
      #+end_src
-    - Example:  alpha, beta, lambda, omega, theta, pi, mu, psi. phi, alpha psi
-      - ->
     
 **** UML
-      #+begin_src emacs-lisp
-   ;; tell org-mode where to find the plantuml JAR file (specify the JAR file)
-  (setq org-plantuml-jar-path (expand-file-name "~/plantuml.jar"))
+     #+begin_src emacs-lisp
+       ;; tell org-mode where to find the plantuml JAR file (specify the JAR file)
+       (setq org-plantuml-jar-path (expand-file-name "~/plantuml.jar"))
 
-  ;; use plantuml as org-babel language
-  (org-babel-do-load-languages 'org-babel-load-languages '((plantuml . t)))
+       ;; use plantuml as org-babel language
+       (org-babel-do-load-languages 'org-babel-load-languages '((plantuml . t)))
 
-  ;; helper function
-  (defun my-org-confirm-babel-evaluate (lang body)
-  "Do not ask for confirmation to evaluate code for specified languages."
-  (member lang '("plantuml")))
+       ;; helper function
+       (defun my-org-confirm-babel-evaluate (lang body)
+         "Do not ask for confirmation to evaluate code for specified languages."
+         (member lang '("plantuml")))
 
-  ;; trust certain code as being safe
-  (setq org-confirm-babel-evaluate 'my-org-confirm-babel-evaluate)
+       ;; trust certain code as being safe
+       (setq org-confirm-babel-evaluate 'my-org-confirm-babel-evaluate)
 
-  ;; automatically show the resulting image
-  (add-hook 'org-babel-after-execute-hook 'org-display-inline-images)
-      #+end_src
+       ;; automatically show the resulting image
+       (add-hook 'org-babel-after-execute-hook 'org-display-inline-images)
+     #+end_src
 
 ** Eshell
 ** Dired
 *** Quick ediff
-   #+begin_src emacs-lisp
-     ;; -*- lexical-binding: t -*-
-     (defun ora-ediff-files ()
-       (interactive)
-       (let ((files (dired-get-marked-files))
-             (wnd (current-window-configuration)))
-         (if (<= (length files) 2)
-             (let ((file1 (car files))
-                   (file2 (if (cdr files)
-                              (cadr files)
-                            (read-file-name
-                             "file: "
-                             (dired-dwim-target-directory)))))
-               (if (file-newer-than-file-p file1 file2)
-                   (ediff-files file2 file1)
-                 (ediff-files file1 file2))
-               (add-hook 'ediff-after-quit-hook-internal
-                         (lambda ()
-                           (setq ediff-after-quit-hook-internal nil)
-                           (set-window-configuration wnd))))
-           (error "no more than 2 files should be marked"))))
+    #+begin_src emacs-lisp
+      ;; -*- lexical-binding: t -*-
+      (defun ora-ediff-files ()
+        (interactive)
+        (let ((files (dired-get-marked-files))
+              (wnd (current-window-configuration)))
+          (if (<= (length files) 2)
+              (let ((file1 (car files))
+                    (file2 (if (cdr files)
+                               (cadr files)
+                             (read-file-name
+                              "file: "
+                              (dired-dwim-target-directory)))))
+                (if (file-newer-than-file-p file1 file2)
+                    (ediff-files file2 file1)
+                  (ediff-files file1 file2))
+                (add-hook 'ediff-after-quit-hook-internal
+                          (lambda ()
+                            (setq ediff-after-quit-hook-internal nil)
+                            (set-window-configuration wnd))))
+            (error "no more than 2 files should be marked"))))
 
-          (define-key dired-mode-map "e" 'ora-ediff-files)
+      (define-key dired-mode-map "e" 'ora-ediff-files)
+    #+end_src
+** EMMS
+   #+begin_src emacs-lisp
+     (emms-all)
+     (emms-default-players)
+     (setq emms-source-file-default-directory "~/Music/")
+
+     ;; read metadata
+     (setq emms-info-functions '(emms-info-tinytag))  ;; When using Tinytag
+     ;;; pip install tinytag
+     ;;(setq emms-info-functions '(emms-info-exiftool)) When using Exiftool
+
+     ;; Load cover images
+     (setq emms-browser-covers 'emms-browser-cache-thumbnail-async)
    #+end_src
+ 
 * Esthetic
 ** Smooth scrolling
-#+begin_src emacs-lisp 
-  ;; Vertical Scroll
-  (setq scroll-step 1)
-  (setq scroll-margin 1)
-  (setq scroll-conservatively 101)
-  (setq scroll-up-aggressively 0.01)
-  (setq scroll-down-aggressively 0.01)
-  (setq auto-window-vscroll nil)
-  (setq fast-but-imprecise-scrolling nil)
-  (setq mouse-wheel-scroll-amount '(1 ((shift) . 1)))
-  (setq mouse-wheel-progressive-speed nil)
-  ;; Horizontal Scroll
-  (setq hscroll-step 1)
-  (setq hscroll-margin 1)
+   #+begin_src emacs-lisp 
+     ;; Vertical Scroll
+     (setq scroll-step 1)
+     (setq scroll-margin 1)
+     (setq scroll-conservatively 101)
+     (setq scroll-up-aggressively 0.01)
+     (setq scroll-down-aggressively 0.01)
+     (setq auto-window-vscroll nil)
+     (setq fast-but-imprecise-scrolling nil)
+     (setq mouse-wheel-scroll-amount '(1 ((shift) . 1)))
+     (setq mouse-wheel-progressive-speed nil)
+     ;; Horizontal Scroll
+     (setq hscroll-step 1)
+     (setq hscroll-margin 1)
    #+end_src
-** Tabs
+** COMMENT Tabs
    #+BEGIN_SRC emacs-lisp
      (centaur-tabs-mode t)
      (centaur-tabs-headline-match)
