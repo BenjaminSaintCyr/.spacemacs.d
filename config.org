@@ -8,7 +8,7 @@
     #+begin_src emacs-lisp
       (spacemacs/set-leader-keys "fe." (lambda () (interactive) (find-file "~/.spacemacs.d/config.org")))
     #+end_src
-** abbrev 
+** COMMENT abbrev 
    #+begin_src emacs-lisp
      (setq abbrev-file-name
            "~/.emacs.d/private/abbrev_defs")
@@ -19,7 +19,7 @@
    #+begin_src emacs-lisp
      (setq company-show-numbers t)
    #+end_src
-*** [[https://github.com/TommyX12/company-tabnine][Tabnine]]
+*** COMMENT [[https://github.com/TommyX12/company-tabnine][Tabnine]]
     - Use machine learning for suggestion
       #+BEGIN_SRC emacs-lisp
         (add-to-list 'company-backends #'company-tabnine)
@@ -29,7 +29,7 @@
 ** Org
 *** org-agenda
     #+begin_src emacs-lisp
-      (setq org-angenda-files '("~/Documents/org-mode/main.org"))
+      (setq org-angenda-files '("~/org-mode/main.org"))
     #+end_src
 *** org todo keywords
     #+begin_src emacs-lisp
@@ -144,6 +144,21 @@
      ;; Load cover images
      (setq emms-browser-covers 'emms-browser-cache-thumbnail-async)
    #+end_src
+** Language
+*** Promela
+   #+begin_src emacs-lisp
+     (load-file "~/.spacemacs.d/elisp/promela-mode.el")
+     (flycheck-define-checker promela
+       "A Promela syntax checker using the Promela compiler"
+       :command ("spin" "-C" source)
+       :error-patterns
+       ((error line-start "spin: " (file-name) ":" line ", Error: " (message) line-end))
+       :modes promela-mode)
+     (add-hook 'promela-mode-hook
+               'company-mode
+               'flycheck-mode)
+     ;; (lambda () (flycheck-select-checker 'promela)) TODO FIXME
+#+end_src
  
 * Esthetic
 ** Smooth scrolling
