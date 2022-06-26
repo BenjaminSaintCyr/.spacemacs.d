@@ -32,8 +32,7 @@ This function should only modify configuration layer settings."
 
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '(
-;;; defaults
+   '(;;; defaults
      (ivy :variables
           ivy-enable-advanced-buffer-information t)
      (auto-completion :variables
@@ -61,23 +60,17 @@ This function should only modify configuration layer settings."
             shell-default-position 'bottom
             hell-enable-smart-eshell t)
      ;;; Programming
-     protobuf
-     ocaml
      c-c++
-     fsharp
      html
+     scheme
      (javascript :variables
                  javascript-backend 'lsp
                  javascript-repl `nodejs)
      json
-     ;; (typescript :variables
-     ;;             typescript-backend 'tide
-     ;;             typescript-linter 'tslint)
-     ;; tide
      common-lisp
      (python :variables python-backend 'lsp python-lsp-server 'pyls)
-     ;; clojure
      yaml
+     ruby
      ;;; tools
      prettier
      treemacs
@@ -95,7 +88,6 @@ This function should only modify configuration layer settings."
      restclient
      ;;; fun
      themes-megapack
-     ;; transmission
      xkcd
      emoji)
 
