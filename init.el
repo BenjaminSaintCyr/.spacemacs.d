@@ -45,7 +45,11 @@ This function should only modify configuration layer settings."
                       auto-completion-enable-help-tooltip nil
                       )
      emacs-lisp
-     org
+     docker
+     (org :variables
+          org-enable-roam-support t
+          org-enable-roam-server t
+          org-enable-roam-protocol t)
      spacemacs-defaults
      ;;; Editing
      pandoc
@@ -61,13 +65,12 @@ This function should only modify configuration layer settings."
             hell-enable-smart-eshell t)
      ;;; Programming
      c-c++
+     go
      html
-     scheme
      (javascript :variables
                  javascript-backend 'lsp
                  javascript-repl `nodejs)
      json
-     common-lisp
      (python :variables python-backend 'lsp python-lsp-server 'pyls)
      yaml
      ruby
@@ -105,12 +108,14 @@ This function should only modify configuration layer settings."
                                       adaptive-wrap
                                       org-static-blog
                                       ox-twbs
+                                      org-roam-ui
                                       ;;; Programming
                                       rg
                                       opencl-mod
                                       guix
                                       geiser-guile 
                                       scheme
+                                      yuck-mode
                                       ;;Fix
                                       helm-org
                                       ;; else

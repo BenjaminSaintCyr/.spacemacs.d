@@ -8,6 +8,16 @@
     #+begin_src emacs-lisp
       (spacemacs/set-leader-keys "fe." (lambda () (interactive) (find-file "~/.spacemacs.d/config.org")))
     #+end_src
+*** Switch magit project
+    #+begin_src emacs-lisp
+      (defun magit-switch-project ()
+        "switch magit project"
+        (interactive)
+        (magit-status (ivy-read "Switch to project: " projectile-known-projects
+                                :sort t
+                                )))
+      (spacemacs/set-leader-keys "gp" 'magit-switch-project)
+    #+end_src
 ** COMMENT abbrev 
    #+begin_src emacs-lisp
      (setq abbrev-file-name
@@ -114,6 +124,12 @@
        (add-hook 'org-babel-after-execute-hook 'org-display-inline-images)
      #+end_src
 
+*** org-roam
+    #+begin_src emacs-lisp
+      (add-to-list 'org-agenda-files "~/org-mode/org-roam/main.org")
+      (setq org-roam-directory (file-truename "~/org-mode/org-roam/"))
+      (org-roam-db-autosync-mode)
+    #+end_src
 ** Eshell
   #+begin_src emacs-lisp
   (require 'dash)
@@ -239,7 +255,14 @@
                'flycheck-mode)
      ;; (lambda () (flycheck-select-checker 'promela)) TODO FIXME
 #+end_src
- 
+** Pomodoro
+   #+begin_src emacs-lisp
+     (defun pomodoro ()
+       "Create a 25 minute timer"
+       (interactive)
+       (org-timer-set-timer 25)
+       (run-at-time "25 min" nil #'shell-command "notify-send \"Done\""))
+#+end_src
 * Esthetic
 ** Smooth scrolling
    #+begin_src emacs-lisp 
