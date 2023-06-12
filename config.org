@@ -130,6 +130,34 @@
       (setq org-roam-directory (file-truename "~/org-mode/org-roam/"))
       (org-roam-db-autosync-mode)
     #+end_src
+
+*** org export
+Just add book or article to the latex class at the begining of the file
+#+BEGIN_QUOTE
+#+LaTeX_CLASS: book
+#+LaTeX_CLASS: article
+#+END_QUOTE
+
+    #+begin_src emacs-lisp
+      (add-to-list 'org-latex-classes
+                   '("article"
+                     "\\documentclass{article}"
+                     ("\\section{%s}" . "\\section*{%s}")
+                     ("\\subsection{%s}" . "\\subsection*{%s}")
+                     ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+                     ("\\paragraph{%s}" . "\\paragraph*{%s}")
+                     ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+
+      (add-to-list 'org-latex-classes
+                   '("book"
+                     "\\documentclass{book}"
+                     ("\\part{%s}" . "\\part*{%s}")
+                     ("\\chapter{%s}" . "\\chapter*{%s}")
+                     ("\\section{%s}" . "\\section*{%s}")
+                     ("\\subsection{%s}" . "\\subsection*{%s}")
+                     ("\\subsubsection{%s}" . "\\subsubsection*{%s}"))
+                   )
+    #+end_src
 ** Eshell
   #+begin_src emacs-lisp
   (require 'dash)
